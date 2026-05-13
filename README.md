@@ -24,6 +24,8 @@ Install dependencies with:
 pip install opencv-python
 ```
 
+A precompiled binary is also available in the `dist/` folder for convenience.
+
 ## License
 
 This project is licensed under the MIT License.
