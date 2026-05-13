@@ -37,6 +37,10 @@ NATURAL_KEY_RE = re.compile(r"(\d+|\D+)")
 
 
 def natural_sort_key(name: str) -> tuple:
+    """Return a tuple that sorts file names in natural numeric order.
+
+    This ensures names like "frame2.jpg" come before "frame10.jpg".
+    """
     parts = NATURAL_KEY_RE.findall(name)
     key = []
     for part in parts:
@@ -48,6 +52,17 @@ def natural_sort_key(name: str) -> tuple:
 
 
 def gather_images(folder: Path) -> list[Path]:
+    """Collect supported image files from the input folder and sort them.
+
+    Args:
+        folder: The folder containing the image frames.
+
+    Returns:
+        A naturally sorted list of image file paths.
+
+    Raises:
+        FileNotFoundError: If the provided folder does not exist or is not a directory.
+    """
     if not folder.exists() or not folder.is_dir():
         raise FileNotFoundError(f"Folder not found: {folder}")
     images = [path for path in folder.iterdir() if path.suffix.lower() in IMAGE_EXTENSIONS]
@@ -56,6 +71,17 @@ def gather_images(folder: Path) -> list[Path]:
 
 
 def write_video(images: list[Path], output_path: Path, fps: float, codec: str) -> None:
+    """Write a video file from a list of image frames.
+
+    Args:
+        images: Ordered list of image paths to include in the video.
+        output_path: Destination path for the output video file.
+        fps: Frame rate for the output video.
+        codec: FourCC codec string used by OpenCV.
+
+    Raises:
+        RuntimeError: If an image cannot be read or the video writer cannot be opened.
+    """
     first_image = cv2.imread(str(images[0]))
     if first_image is None:
         raise RuntimeError(f"Unable to read image: {images[0]}")
@@ -80,6 +106,7 @@ def write_video(images: list[Path], output_path: Path, fps: float, codec: str) -
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command line arguments and return the resulting namespace."""
     parser = argparse.ArgumentParser(
         description="Create a video from a folder of numbered images.")
     parser.add_argument("folder", type=Path, help="Path to the folder with image frames.")
@@ -101,6 +128,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    """Run the script: parse arguments, build video, and return an exit code."""
     args = parse_args()
     images = gather_images(args.folder)
     if not images:
